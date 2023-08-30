@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+	<title>Web Map with Esri JavaScript API</title>
+	<link rel="stylesheet" href="https://js.arcgis.com/4.20/esri/themes/light/main.css">
+	<script src="https://js.arcgis.com/4.20/"></script>
+
+	<style>
+		html,
+		body,
+		#viewDiv {
+			padding: 0;
+			margin: 0;
+			height: 100%;
+			width: 100%;
+		}
+	</style>
+
+	<script>
+		require([
+			"esri/Map",
+			"esri/views/MapView",
+			"esri/layers/GeoJSONLayer",
+			"esri/widgets/Compass",
+			"esri/widgets/Editor",
+			"esri/widgets/LayerList",
+			"esri/widgets/Legend",
+			"esri/widgets/Locate",
+			"esri/widgets/Measurement",
+			"esri/widgets/Popup",
+			"esri/widgets/ScaleBar",
+			"esri/widgets/Search",
+			"esri/widgets/Zoom",
+			"esri/widgets/BasemapToggle",
+			"esri/widgets/Expand"
+		], function(Map, MapView, GeoJSONLayer, Compass, Editor, LayerList, Legend,
+								Locate, Measurement, Popup, ScaleBar, Search,
+							 Zoom, BasemapToggle, Expand) {
+
+			var map = new Map({
+				basemap: "streets-navigation-vector"
+			});
+
+      //INITIALIZING MAP
+
+			var view = new MapView({
+				container: "viewDiv",
+				map: map,
+				center: [90.4152,23.8041],
+				zoom: 11
+			});
+
+
+      //ADDING FILES TO MAP
+
+			//DMA Boundary
+			var all_dma = new GeoJSONLayer({
+				url: "files/all_dma.geojson",
+				renderer: {
+					type: "unique-value",
+					field: "status1",
+					defaultSymbol: {
+						type: "simple-fill",
+						color: "grey"
+					},
+					uniqueValueInfos: [{
+						value: "DESWSP completed",
+						symbol: {
+							type: "simple-fill",
+							color: "DarkSeaGreen"
+						}
+					}, {
+						value: "DWSNIP completed",
+						symbol: {
+							type: "simple-fill",
+							color: "MediumPurple"
+						}
+					}, {
+						value: "DWSNIP not completed",
+						symbol: {
+							type: "simple-fill",
+							color: "yellow"
+						}
+					}, {
+						value: "DWSSDP completed",
+						symbol: {
+							type: "simple-fill",
+							color: "SandyBrown"
+						}
+					}, {
+						value: "DWSSDP not completed",
+						symbol: {
+							type: "simple-fill",
+							color: 'red'
+						}
+					}, {
+						value: "Proposed not completed",
+						symbol: {
+							type: "simple-fill",
+							color: "#CCCCFF"
+						}
+					}]
+				},
+				title:'DMA Boundary and Status',
+				popupTemplate:{
+					title:"DMA: {dma_id}",
+					content:"Area (Acre): {area_acre}<br>Project: {project}<br>Satus: {status}<br>NRW: {nrw}"
+				},
+				labelingInfo:[{
+					labelExpressionInfo:{
+						expression:"$feature.dma_id"
+					},
+					symbol:{
+						type:"text",
+						color:"white",
+						haloColor:"black",
+						haloSize:"1px",
+						font:{
+							size:"8px",
+							family:"Noto Sans",
+							style:"italic",
+							weight:"normal"
+						}
+					}
+				}]
+			});
+
+			map.add(all_dma);
+
+			//Zone Boundary 
+			var zone_boundary = new GeoJSONLayer({
+				url:"files/zone_boundary.geojson",
+				renderer: {
+					type: 'simple',
+					symbol: {
+						type: 'simple-fill',
+						color: [128, 128, 128, 0],
+						outline: {
+							width: 2,
+							color:'black'
+						}
+					}
+				},
+				title:'Zone Boundary',
+				labelingInfo:[{
+					labelExpressionInfo:{
+						expression:"$feature.name"
+					},
+					symbol:{
+						type:"text",
+						color:"white",
+						haloColor:"black",
+						haloSize:"1px",
+						font:{
+							size:"11px",
+							family:"Noto Sans",
+							style:"italic",
+							weight:"normal"
+						}
+					}
+				}]
+			});
+
+			map.add(zone_boundary);
+
+      //TRANSMISSION LINES
+			var saidabaad = new GeoJSONLayer({
+				url: "files/saidabaad_transmisson_lines.geojson",
+				renderer: {
+					type: "unique-value",
+					field: "tl_diameter",
+					defaultSymbol: {
+						type: "simple-line",
+						color: "red",
+						width: '5px'
+					},
+					uniqueValueInfos: [
+						{
+							value: 400,
+							symbol: {
+								type: "simple-line",
+								color: "#A9CCE3",
+								width: '3.2px'
+							}
+						},
+            {
+              value: 450,
+              symbol: {
+                type: "simple-line",
+                color: "#7FB3D5",
+                width: '3.7px'
+              }
+            },
+            {
+              value: 600,
+              symbol: {
+                type: "simple-line",
+                color: "#5499C7",
+                width: '4px'
+              }
+            },
+            {
+              value: 800,
+              symbol: {
+                type: "simple-line",
+                color: "#2980B9",
+                width: '4.5px'
+              }
+            },
+            {
+              value: 1000,
+              symbol: {
+                type: "simple-line",
+                color: "#2471A3",
+                width: '5px'
+              }
+            },
+            {
+              value: 1200,
+              symbol: {
+                type: "simple-line",
+                color: "#1F618D",
+                width: '5.5px'
+              }
+            },
+            {
+              value: 1400,
+              symbol: {
+                type: "simple-line",
+                color: "#1A5276",
+                width: '6px'
+              }
+            },
+            {
+              value: 1800,
+              symbol: {
+                type: "simple-line",
+                color: "#154360",
+                width: '6.5px'
+              }
+            }
+					]
+				},
+				title:'Saidabaad Transmission Line',
+        popupTemplate:{
+          title:"{tl_label}",
+          content:"Diameter: {tl_diameter} mm<br>Material: {tl_material}"
+        }
+			});
+
+			map.add(saidabaad);
+
+      //DEEP TUBEWELL
+      var ptw = new GeoJSONLayer({
+        url: "files/ptw.geojson",
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "simple-marker",
+            color: "red",
+            size: "5px"
+          }
+        },
+        title:'Deep Tube Well',
+        popupTemplate:{
+          title:"PTW ID: {ptw_id}",
+          content:"Location: {ptw_location} mm<br>DMA ID: {ptw_dma_id}<br>Zone ID: {ptw_zone_id}<br>SCADA Status: {ptw_scada}<br>Chlorination Status: {ptw_chlorine}"
+        }
+      });
+
+      map.add(ptw);
+
+      //DMA CHAMBER
+      var ice = new GeoJSONLayer({
+        url: "files/ice.geojson",
+        renderer: {
+          type: "unique-value",
+          field: "ice_type",
+          defaultSymbol: {
+            type: "simple-marker",
+            style: "square",
+            color: "DarkKhaki",
+            size: '7px'
+          },
+          uniqueValueInfos: [
+            {
+              value: "Inter DMA Chamber",
+              symbol: {
+                type: "simple-marker",
+                style: "square",
+                color: "CornflowerBlue",
+                size: "7px"
+              }
+            },
+            {
+              value: "Transmission Chamber",
+              symbol: {
+                type: "simple-marker",
+                style: "square",
+                color: "white",
+                size: "7px"
+              }
+            },
+            {
+              value: "SWIP",
+              symbol: {
+                type: "simple-marker",
+                style: "square",
+                color: "LightSeaGreen",
+                size: "7px"
+              }
+            }
+          ]
+        },
+        title:'DMA Chamber',
+        popupTemplate:{
+          title:"Chamber ID: {ice_id}",
+          content:"Chamber Type: {ice_type}<br>Location: {ice_location}<br>DMA ID: {ice_dma_id}<br>Zone ID: {ice_zone_id}<br>Import Reading: {import_reading}<br>Export Reading: {export_reading}"
+        }
+      });
+
+      map.add(ice);
+
+
+
+
+			// Add widgets
+			
+			view.ui.add(new LayerList({view: view}), {position: "top-right"});
+			
+			view.ui.add(new Legend({view: view}), {position: "bottom-right"});
+			
+
+			view.popup.autoOpenEnabled = false;
+			
+			view.ui.add(new Popup({view: view}), {position: "top-right"});
+			
+			// Add basemap toggle
+			view.ui.add(new BasemapToggle({
+  			view: view,
+  			nextBasemap: "hybrid"
+  			}), "bottom-right");
+
+      //compass
+      view.ui.add(new Compass({view: view}), {position: "top-left"});
+
+      //locate
+      view.ui.add(new Locate({view: view}), {position: "top-left"});
+
+      //search
+      view.ui.add(new Search({view: view}), {position: "top-left"}); 
+
+      //editor
+      var editor = new Editor({view: view});
+            view.ui.add(editor, {position: "bottom-left"});
+
+      //scalebar
+      view.ui.add(new ScaleBar({view: view}), {position: "bottom-left"});
+
+		});
+	</script>
+</head>
+
+<body>
+	<div id="viewDiv"></div>
+</body>
+
+</html>
